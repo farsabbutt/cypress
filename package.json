@@ -3,10 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "nyc next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:only": "playwright test",
+    "pretest": "rm -rf coverage/ .nyc_output/",
+    "test": "start-server-and-test 3000 test:only"
   },
   "dependencies": {
     "next": "14.1.4",
@@ -14,14 +17,19 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@playwright/test": "^1.43.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "babel-plugin-istanbul": "^6.1.1",
     "cypress": "^13.7.2",
     "eslint": "^8",
     "eslint-config-next": "14.1.4",
+    "nyc": "^15.1.0",
+    "playwright-test-coverage": "^1.2.12",
     "postcss": "^8",
+    "start-server-and-test": "^2.0.3",
     "tailwindcss": "^3.3.0",
     "typescript": "^5"
   }
