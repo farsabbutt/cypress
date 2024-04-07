@@ -1,7 +1,7 @@
 name: Test in Docker
 on: push
 jobs:
-  cypress-run:
+  cypress-POP:
     runs-on: ubuntu-22.04
     # Cypress Docker image from https://hub.docker.com/r/cypress
     # with browsers pre-installed
@@ -14,3 +14,70 @@ jobs:
         with:
           browser: chrome
           headed: true
+          spec: cypress/e2e/1/*.*
+      - name: move reports to subfolder
+        run: mkdir ./cypress/reports/mocha/pop && mv ./cypress/reports/mocha/*.json ./cypress/reports/mocha/pop
+      - uses: actions/upload-artifact@v4
+        with:
+            name: cypress-coverage-pop
+            path: ./cypress/reports/mocha/pop
+            if-no-files-found: ignore #
+
+  cypress-CHO:
+    runs-on: ubuntu-22.04
+    # Cypress Docker image from https://hub.docker.com/r/cypress
+    # with browsers pre-installed
+    container:
+      image: cypress/browsers:latest
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          headed: true
+          spec: cypress/e2e/2/*.*
+      - name: move reports to subfolder
+        run: mkdir ./cypress/reports/mocha/cho && mv ./cypress/reports/mocha/*.json ./cypress/reports/mocha/cho
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cypress-coverage-cho
+          path: ./cypress/reports/mocha/cho
+          if-no-files-found: ignore #
+
+  cypress-PDP:
+    runs-on: ubuntu-22.04
+    # Cypress Docker image from https://hub.docker.com/r/cypress
+    # with browsers pre-installed
+    container:
+      image: cypress/browsers:latest
+      options: --user 1001
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cypress-io/github-action@v6
+        with:
+          browser: chrome
+          headed: true
+          spec: cypress/e2e/3/*.*
+      - name: move reports to subfolder
+        run: mkdir ./cypress/reports/mocha/pdp && mv ./cypress/reports/mocha/*.json ./cypress/reports/mocha/pdp
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cypress-coverage-pdp
+          path: ./cypress/reports/mocha/pdp
+          if-no-files-found: ignore #
+
+  combine-reports:
+    runs-on: ubuntu-22.04
+    needs:
+      - cypress-POP
+      - cypress-CHO
+      - cypress-PDP
+    steps:
+      - uses: actions/download-artifact@v4
+      - name: combine reports
+        run: |
+          ls -lah ./cypress/reports/mocha
+          npx mochawesome-merge cypress/reports/mocha/**/*.json > mochawesome.json &&
+          npx marge mochawesome.json &&
+          ls -lah
